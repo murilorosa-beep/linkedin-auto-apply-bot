@@ -178,8 +178,9 @@ class ApplicationEngine:
                         logger.info(f"Pagina {page_num}: {len(jobs)} vagas encontradas.")
 
                         if not jobs:
-                            logger.info(f"Nenhuma vaga extraida na pagina {page_num}.")
-                            continue
+                            console.print(f"  [dim]Nenhuma vaga adicional encontrada na pagina {page_num}. Avancando para o proximo termo de busca...[/dim]")
+                            logger.info(f"Nenhuma vaga extraida na pagina {page_num} para '{keyword}'. Avancando para proximo termo.")
+                            break
 
                         for job in jobs:
                             if (stop_event and stop_event.is_set()) or applied_today >= max_daily:

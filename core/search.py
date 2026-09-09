@@ -20,15 +20,20 @@ class JobSearchEngine:
         self.page: Page = browser_mgr.page
         self.config = config.get("search", {})
 
-    def build_search_url(self, keyword: str, location: str, start_index: int = 0) -> str:
-        """Constrói a URL de busca do LinkedIn com os filtros internacionais."""
+    def build_search_url(self, keyword: str, location: str, start_index: int = 0, clean: bool = False) -> str:
+        """Constrói a URL de busca do LinkedIn com os filtros internacionais e alta estabilidade."""
         base_url = "https://www.linkedin.com/jobs/search/?"
         params = {
             "keywords": keyword,
             "location": location,
-            "start": str(start_index),
-            "sortBy": "DD"  # Mais recentes primeiro
+            "start": str(start_index)
         }
+
+        # sortBy: DD apenas se explicitamente configurado pelo usuário.
+        # Por padrão, omitir sortBy usa a relevância inteligente do LinkedIn, evitando erro 500 do cluster.
+        sort_by = self.config.get("sort_by", "")
+        if sort_by and not clean:
+            params["sortBy"] = sort_by
 
         # Filtro de Modalidades de Trabalho (LinkedIn f_WT: 1=Presencial, 2=Remoto, 3=Híbrido)
         workplace_types = self.config.get("workplace_types", [])
@@ -55,25 +60,90 @@ class JobSearchEngine:
         if self.config.get("easy_apply_only", True):
             params["f_AL"] = "true"
 
-        # Filtro Data de Publicação
-        date_posted = self.config.get("date_posted", "past_week")
-        if date_posted == "past_24h":
-            params["f_TPR"] = "r86400"
-        elif date_posted == "past_week":
-            params["f_TPR"] = "r604800"
-        elif date_posted == "past_month":
-            params["f_TPR"] = "r2592000"
+        # Filtro Data de Publicação (se clean=True, omite para maximizar volume e evitar conflitos)
+        if not clean:
+            date_posted = self.config.get("date_posted", "past_month")
+            if date_posted == "past_24h":
+                params["f_TPR"] = "r86400"
+            elif date_posted == "past_week":
+                params["f_TPR"] = "r604800"
+            elif date_posted == "past_month":
+                params["f_TPR"] = "r2592000"
 
         # Filtro Nível de Experiência
-        exp_levels = self.config.get("experience_levels", [])
-        if exp_levels:
-            params["f_E"] = ",".join(str(lvl) for lvl in exp_levels)
+        if not clean:
+            exp_levels = self.config.get("experience_levels", [])
+            if exp_levels:
+                params["f_E"] = ",".join(str(lvl) for lvl in exp_levels)
 
         return base_url + urllib.parse.urlencode(params)
 
+    def _detect_and_recover_page_error(self, keyword: str, location: str, start_index: int) -> bool:
+        """
+        Detecta a tela 'Ocorreu um erro ao carregar' do LinkedIn e recupera automaticamente.
+        Tenta clicar em 'Atualizar' ou recarrega com URL limpa e simplificada.
+        """
+        error_indicators = [
+            "text='Ocorreu um erro ao carregar'",
+            "text='An error occurred'",
+            "text='Hubo un error al cargar'",
+            "div:has-text('Ocorreu um erro ao carregar')",
+            "div:has-text('An error occurred')"
+        ]
+        has_error = False
+        for ind in error_indicators:
+            try:
+                elem = self.page.locator(ind)
+                if elem.count() > 0 and elem.first.is_visible():
+                    has_error = True
+                    break
+            except Exception:
+                pass
+
+        if not has_error:
+            return True
+
+        logger.warning("Tela 'Ocorreu um erro ao carregar' detectada na busca do LinkedIn. Tentando auto-recuperacao...")
+
+        # 1. Tentar clicar no botão Atualizar / Reload na tela
+        reload_btn = self.page.locator(
+            "button:has-text('Atualizar'), button:has-text('Reload'), button:has-text('Reintentar'), button:has-text('Tentar novamente')"
+        ).first
+        if reload_btn.count() > 0 and reload_btn.is_visible():
+            try:
+                reload_btn.click(timeout=3000)
+                self.bm.human_delay(3.0, 5.0)
+                still_error = any(
+                    self.page.locator(ind).count() > 0 and self.page.locator(ind).first.is_visible()
+                    for ind in error_indicators
+                )
+                if not still_error:
+                    logger.info("Recuperado com sucesso apos clicar no botao de Atualizar.")
+                    return True
+            except Exception:
+                pass
+
+        # 2. Se continuar com erro, recarregar com URL limpa (sem filtros restritivos de faceta)
+        clean_url = self.build_search_url(keyword, location, start_index, clean=True)
+        logger.info(f"Recarregando com URL limpa e resiliente: {clean_url}")
+        try:
+            self.page.goto(clean_url, wait_until="domcontentloaded", timeout=30000)
+            self.bm.human_delay(3.0, 5.0)
+            still_error = any(
+                self.page.locator(ind).count() > 0 and self.page.locator(ind).first.is_visible()
+                for ind in error_indicators
+            )
+            if not still_error:
+                logger.info("Recuperado com sucesso apos carregar URL limpa.")
+                return True
+        except Exception as e:
+            logger.warning(f"Falha ao carregar URL limpa: {str(e)}")
+
+        return False
+
     def load_search_page(self, keyword: str, location: str, page_num: int = 1, max_retries: int = 3) -> bool:
         """
-        Navega para a página de busca com retry automático (até 3 tentativas) em caso de Timeout.
+        Navega para a página de busca com auto-recuperação de erros 500 do LinkedIn e retry automático.
         """
         start_index = (page_num - 1) * 25
         url = self.build_search_url(keyword, location, start_index)
@@ -96,9 +166,21 @@ class JobSearchEngine:
                     logger.warning("Redirecionado para tela de login/checkpoint durante a busca.")
                     return False
 
+                # Auto-recuperação da tela 'Ocorreu um erro ao carregar'
+                if not self._detect_and_recover_page_error(keyword, location, start_index):
+                    logger.warning(f"Erro ao carregar pagina {page_num} na tentativa {attempt}. Tentando novamente...")
+                    if attempt < max_retries:
+                        time.sleep(3)
+                        continue
+                    else:
+                        logger.error(f"Erro persistente na pagina {page_num} para '{keyword}'.")
+                        return False
+
                 # Verificar se não há resultados para o termo
                 no_results_loc = self.page.locator(
-                    "div:has-text('No matching jobs found'), h1:has-text('No matching jobs found'), h2:has-text('No matching jobs found')"
+                    "div:has-text('No matching jobs found'), h1:has-text('No matching jobs found'), "
+                    "h2:has-text('No matching jobs found'), div:has-text('Nenhuma vaga encontrada'), "
+                    "div:has-text('No se encontraron empleos')"
                 )
                 if no_results_loc.count() > 0 and no_results_loc.first.is_visible():
                     logger.info(f"Nenhuma vaga encontrada para '{keyword}' em '{location}'.")

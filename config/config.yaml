@@ -20,7 +20,7 @@ search:
   - on_site
   remote_only: false
   easy_apply_only: true
-  date_posted: past_week
+  date_posted: past_month
   presets:
     spain:
       name: Espanha (Remoto & Internacional)
@@ -81,10 +81,7 @@ search:
       - Analista de Suporte e Infraestrutura
       - Analista de Redes
       - Engenheiro de Redes
-  experience_levels:
-  - 2
-  - 3
-  - 4
+  experience_levels: []
 limits:
   max_applications_per_day: 100
   min_match_score: 50
