@@ -53,16 +53,15 @@ search:
       - on_site
       keywords:
       - Azure Cloud Engineer
+      - Cloud & Infrastructure Engineer
+      - DevOps Engineer
       - Cloud Engineer
       - Infrastructure Engineer
       - Cloud Security Engineer
       - Linux Systems Engineer
       - Azure Administrator
-      - DevOps Engineer
-      - Ingeniero Cloud
-      - Ingeniero DevOps
-      - Administrador de Sistemas
-      - Ingeniero de Ciberseguridad
+      - Systems Administrator
+      - Network & Security Engineer
     brazil:
       name: Brasil (Home Office & Híbrido)
       locations:
@@ -87,9 +86,9 @@ search:
   - 3
   - 4
 limits:
-  max_applications_per_day: 50
-  min_match_score: 55
-  max_pages_per_search: 5
+  max_applications_per_day: 100
+  min_match_score: 50
+  max_pages_per_search: 6
   min_delay_seconds: 5
   max_delay_seconds: 15
 filters:

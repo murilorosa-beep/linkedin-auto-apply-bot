@@ -12,6 +12,7 @@ from playwright.sync_api import Page, Locator
 from core.browser import BrowserManager
 from core.ai_solver import QuestionSolver
 from core.cover_letter import CoverLetterGenerator
+from core.matcher import JobMatcher
 
 logger = logging.getLogger("AutoApplyBot")
 
@@ -32,6 +33,7 @@ class EasyApplyHandler:
         self.dry_run = config.get("bot", {}).get("dry_run", True)
         self.resume_path = os.path.abspath(config.get("bot", {}).get("resume_path", "config/cv/resume.pdf"))
         self.cover_letter_gen = CoverLetterGenerator(profile, config)
+        self.matcher = JobMatcher(profile, config)
         self.current_job = {}
         self.current_job_desc = ""
 
@@ -51,6 +53,22 @@ class EasyApplyHandler:
             self.current_job_desc = desc_elem.inner_text().strip() if desc_elem.count() > 0 else ""
         except Exception:
             self.current_job_desc = ""
+
+        # Validação Inteligente da Descrição da Vaga (Pre-Apply Gatekeeper)
+        # Se a descrição contiver requisitos incompatíveis (ex: senioridade 8+ anos, dev puro) ou score < min_match_score, pula
+        if self.current_job_desc:
+            match_res = self.matcher.calculate_match(
+                job.get("title", ""),
+                self.current_job_desc,
+                location=job.get("location", ""),
+                workplace_type=job.get("workplace_type", ""),
+                company=job.get("company", "")
+            )
+            min_cutoff = self.config.get("limits", {}).get("min_match_score", 50)
+            if match_res["score"] < min_cutoff or match_res.get("recommendation") == "SKIP":
+                skip_msg = match_res.get("summary", f"Score insuficiente na descrição ({match_res['score']}%)")
+                logger.info(f"Vaga {job.get('job_id')} pulada após análise da descrição: {skip_msg}")
+                return "SKIPPED", f"Triagem da Descrição: {skip_msg}"
 
         # 1. Localizar o botão de Candidatura Simplificada (Easy Apply)
         easy_apply_btn = self._find_easy_apply_button()

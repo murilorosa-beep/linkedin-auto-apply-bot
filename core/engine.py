@@ -225,7 +225,7 @@ class ApplicationEngine:
                             pre_match = matcher.calculate_match(
                                 title, "", location=job_loc, workplace_type=job_wp, company=company
                             )
-                            min_match_score = limits.get("min_match_score", 40)
+                            min_match_score = limits.get("min_match_score", 50)
                             if pre_match["score"] < min_match_score or pre_match.get("recommendation") == "SKIP":
                                 skip_reason = pre_match.get("summary", f"Match insuficiente ({pre_match['score']}%)")
                                 console.print(f"  [dim][PULADA] {skip_reason}: {title} @ {company}[/dim]")

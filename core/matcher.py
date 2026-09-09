@@ -17,17 +17,44 @@ class JobMatcher:
         self.company_blacklist = [c.lower().strip() for c in filters_cfg.get("company_blacklist", []) if c]
         self.title_blacklist = [t.lower().strip() for t in filters_cfg.get("title_blacklist", []) if t]
               # Competências nucleares do candidato (Multilíngue: EN, PT, ES) - 100% Foco em Infra/Cloud/Sistemas
+        # Competências nucleares do candidato (Multilíngue: EN, PT, ES) - 100% Foco em Infra/Cloud/DevOps/Sistemas
         self.candidate_core_skills = {
-            "azure": 5, "microsoft azure": 5, "cloud": 5, "infrastructure": 5, "infraestrutura": 5, "infraestructura": 5,
-            "linux": 5, "debian": 4, "ubuntu": 4, "windows": 4, "windows server": 5,
-            "networking": 5, "redes": 5, "cisco": 4, "mikrotik": 3, "vpn": 4, "openvpn": 3, "dns": 4, "dhcp": 4,
-            "firewall": 5, "fortigate": 5, "pfsense": 5, "palo alto": 3, "cortafuegos": 5,
-            "security": 4, "cybersecurity": 4, "segurança": 4, "cibersegurança": 4, "seguridad": 4,
-            "siem": 3, "wazuh": 3, "zabbix": 4, "glpi": 4, "itsm": 3,
-            "active directory": 5, "iam": 4, "virtualization": 4, "virtualización": 4, "proxmox": 4, "vmware": 4, "hyper-v": 4,
-            "backup": 4, "defender": 3, "microsoft defender": 3, "docker": 3, "devops": 4,
-            "sre": 4, "site reliability": 4, "sysadmin": 5, "system administrator": 5,
-            "sistemas": 5, "servidores": 5, "bash": 3, "powershell": 4, "shell": 3
+            # Cloud & Microsoft Azure (Especialidade AZ-104 / AZ-900)
+            "azure": 5, "microsoft azure": 5, "az-104": 5, "az-900": 4, "entra id": 5, "entra": 4,
+            "cloud": 5, "infrastructure": 5, "infraestrutura": 5, "infraestructura": 5,
+            
+            # DevOps, IaC & Automação (Foco de estudo e portfólio)
+            "devops": 5, "terraform": 5, "iac": 5, "infrastructure as code": 5,
+            "docker": 4, "container": 4, "containers": 4, "kubernetes": 4, "k8s": 4,
+            "ci/cd": 4, "cicd": 4, "pipeline": 4, "pipelines": 4, "github actions": 4,
+            "git": 4, "github": 4, "gitlab": 4, "ansible": 4, "sre": 4, "site reliability": 4,
+            
+            # Sistemas Operacionais, Servidores & Virtualização
+            "linux": 5, "debian": 5, "ubuntu": 5, "centos": 4, "rhel": 4,
+            "windows": 4, "windows server": 5,
+            "proxmox": 5, "proxmox ve": 5, "vmware": 4, "esxi": 4, "hyper-v": 4, "virtualization": 4, "virtualización": 4,
+            "active directory": 5, "ad ds": 5, "gpo": 5, "group policy": 5, "iam": 4, "rbac": 4,
+            
+            # Redes & Firewalls Perimetrais
+            "networking": 5, "redes": 5, "tcp/ip": 4, "vlan": 4, "vlans": 4, "dns": 4, "dhcp": 4, "routing": 4,
+            "cisco": 4, "mikrotik": 4, "ubiquiti": 4, "unifi": 4,
+            "vpn": 5, "openvpn": 4, "ipsec": 4, "wireguard": 4,
+            "firewall": 5, "fortigate": 5, "fsso": 4, "pfsense": 5, "palo alto": 4, "cortafuegos": 5,
+            
+            # Segurança, SIEM & Monitoramento
+            "security": 4, "cybersecurity": 4, "segurança": 4, "cibersegurança": 4, "seguridad": 4, "ciberseguridad": 4,
+            "siem": 4, "wazuh": 5, "security onion": 4, "suricata": 4, "zeek": 4,
+            "defender": 4, "microsoft defender": 4, "edr": 4, "iso 27001": 4,
+            "zabbix": 5, "glpi": 4, "itsm": 4, "syslog": 4, "snmp": 4, "grafana": 4, "prometheus": 4,
+            
+            # Scripting, Backups & Resiliência
+            "python": 4, "bash": 4, "powershell": 4, "shell": 4, "sql": 3,
+            "backup": 5, "disaster recovery": 5, "immutable backup": 4, "veeam": 4,
+            
+            # Papéis e Cargos Compatíveis
+            "sysadmin": 5, "system administrator": 5, "administrador de sistemas": 5,
+            "analista de infraestrutura": 5, "engenheiro de redes": 5, "analista de suporte": 4,
+            "sistemas": 4, "servidores": 4, "datacenter": 4
         }
 
         # Padrões de cargos de programação / desenvolvimento que devem ser estritamente bloqueados
@@ -312,18 +339,20 @@ class JobMatcher:
         matched_skills = []
         weight_sum = 0
 
-        # 2. Avaliação de título da vaga (EN, PT, ES) - 100% Focado em Infra/Cloud/Sistemas/Redes
+        # 2. Avaliação de título da vaga (EN, PT, ES) - Focado em Infra/Cloud/DevOps/Sistemas/Redes
         title_boost = 0
         if any(w in title_lower for w in [
             "cloud", "infrastructure", "infraestrutura", "infraestructura", "azure", "devops",
-            "sre", "sysadmin", "systems", "sistemas", "administrador de sistemas", "arquitecto cloud",
-            "platform engineer", "cloud administrator", "cloud engineer", "infrastructure engineer"
+            "terraform", "iac", "sre", "sysadmin", "systems", "sistemas", "administrador de sistemas", "arquitecto cloud",
+            "platform engineer", "cloud administrator", "cloud engineer", "infrastructure engineer",
+            "engenheiro de cloud", "ingeniero cloud", "engenheiro devops", "ingeniero devops"
         ]):
             title_boost += 35
         elif any(w in title_lower for w in [
             "network", "redes", "security", "segurança", "seguridad", "ciberseguridad",
             "cybersecurity", "firewall", "suporte", "support", "datacenter", "virtualization",
-            "virtualização", "systems engineer", "systems administrator", "analista de infraestrutura"
+            "virtualização", "systems engineer", "systems administrator", "analista de infraestrutura",
+            "administrador de redes", "técnico de sistemas", "tecnico de sistemas"
         ]):
             title_boost += 25
         elif any(w in title_lower for w in [
@@ -340,20 +369,40 @@ class JobMatcher:
                 weight_sum += weight
 
         # Normalização do score: título (até 35) + skills encontradas (até 65)
-        skills_score = min(65, weight_sum * 4)
+        skills_score = min(65, int(weight_sum * 3.5))
         total_score = min(100, max(20, title_boost + skills_score))
 
-        # Se houver pouca descrição (ex: LinkedIn truncou), o título garante uma base razoável
-        if not job_description and title_boost > 0:
-            total_score = max(total_score, 65)
+        # Se houver pouca descrição (ex: LinkedIn truncou card na busca)
+        if not job_description:
+            if title_boost >= 35:
+                total_score = max(total_score, 65)
+            elif title_boost >= 25:
+                total_score = max(total_score, 55)
+            elif title_boost >= 15:
+                total_score = max(total_score, 40)
+
+        # 3.1 Verificação de Senioridade Excessiva na Descrição (Anti-Sênior 8+ anos)
+        has_senior_overkill = False
+        if job_description and exclude_senior:
+            senior_exp_patterns = [
+                r"\b(?:8|9|10|11|12|13|14|15)\+?\s*(?:years|anos|años)\s+(?:of\s+)?(?:experience|experiência|experiencia)\b",
+                r"\b(?:eight|nine|ten|twelve|fifteen)\s*(?:years|anos|años)\b",
+                r"\b(?:8|9|10|12|15)\s*-\s*\d+\s*(?:years|anos|años)\b",
+                r"\b(?:mínimo|minimum)\s+(?:de\s+)?(?:8|10)\s*(?:anos|years|años)\b"
+            ]
+            for se_pat in senior_exp_patterns:
+                if re.search(se_pat, job_description.lower()):
+                    has_senior_overkill = True
+                    total_score = max(10, total_score - 35)
+                    break
 
         # 4. Bônus de Oportunidades Internacionais Estratégicas
         badge_tags = []
         if has_visa_sponsorship:
-            total_score = min(100, total_score + 15)
+            total_score = min(100, total_score + 12)
             badge_tags.append("✈️ Patrocínio de Visto")
         if is_latam_friendly:
-            total_score = min(100, total_score + 10)
+            total_score = min(100, total_score + 8)
             badge_tags.append("🌎 LatAm/B2B")
         if is_spain_fasttrack:
             total_score = min(100, total_score + 8)
@@ -362,12 +411,17 @@ class JobMatcher:
         tag_prefix = f"[{' | '.join(badge_tags)}] " if badge_tags else ""
 
         # Recomendação
-        if total_score >= 70 or has_visa_sponsorship:
+        if has_senior_overkill:
+            recommendation = "SKIP"
+            summary = f"{tag_prefix}Exigência de senioridade avançada (8+ anos de experiência). Fora da faixa de 4-5 anos do candidato."
+        elif total_score >= 50 or has_visa_sponsorship:
             recommendation = "APPLY"
-            summary = f"{tag_prefix}Excelente compatibilidade ({total_score}%). Forte alinhamento em {', '.join(matched_skills[:3]) or 'Cloud & Infra'}."
-        elif total_score >= 50:
+            top_skills = ', '.join(matched_skills[:3]) if matched_skills else 'Cloud, DevOps & Infra'
+            summary = f"{tag_prefix}Excelente compatibilidade ({total_score}%). Tecnologias alinhadas: {top_skills}."
+        elif total_score >= 40:
             recommendation = "CONSIDER"
-            summary = f"{tag_prefix}Boa compatibilidade ({total_score}%). Tecnologias compatíveis: {', '.join(matched_skills[:3]) or 'Engenharia de TI'}."
+            top_skills = ', '.join(matched_skills[:3]) if matched_skills else 'Engenharia de TI'
+            summary = f"{tag_prefix}Compatibilidade moderada ({total_score}%). Tecnologias: {top_skills}."
         else:
             recommendation = "SKIP"
             summary = f"{tag_prefix}Compatibilidade moderada/baixa ({total_score}%)."
