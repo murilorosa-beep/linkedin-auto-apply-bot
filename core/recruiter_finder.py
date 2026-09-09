@@ -12,6 +12,8 @@ logger = logging.getLogger("AutoApplyBot")
 
 
 class RecruiterFinder:
+    note_quota_exhausted: bool = False
+
     def __init__(self, page: Optional[Page] = None, profile: Optional[Dict[str, Any]] = None):
         self.page = page
         if profile is None:
@@ -341,36 +343,85 @@ class RecruiterFinder:
                 except Exception:
                     pass
 
-            # 4. Tentar adicionar nota personalizada ("Adicionar nota" / "Add a note" / "Añadir nota")
-            add_note_btn = dialog.locator(
-                "button:has-text('Adicionar nota'), button:has-text('Add a note'), button:has-text('Añadir una nota'), button:has-text('Añadir nota'), "
-                "button[aria-label*='Adicionar nota' i], button[aria-label*='Add a note' i], button[aria-label*='Añadir' i]"
-            ).first
-
+            # 4. Envio do convite: Com nota personalizada ou Padrão (Sem nota)
             note_filled = False
-            if add_note_btn.count() > 0 and add_note_btn.is_visible():
-                try:
-                    add_note_btn.click(force=True)
-                    time.sleep(1.0)
+            upsell_detected = False
 
-                    textarea = dialog.locator("textarea#custom-message, textarea[name='message'], textarea").first
-                    if textarea.count() > 0 and textarea.is_visible():
-                        clean_note = note.strip()[:200]
-                        textarea.click(force=True)
-                        textarea.fill(clean_note)
-                        # Disparar evento de input para habilitar o botão Enviar
-                        textarea.dispatch_event("input")
-                        time.sleep(1.0)
-                        note_filled = True
-                        logger.info(f"Nota personalizada preenchida com sucesso ({len(clean_note)} caracteres).")
-                except Exception as note_e:
-                    logger.debug(f"Não foi possível anexar nota: {note_e}")
+            # Se a cota mensal gratuita de notas ainda não foi detectada como esgotada
+            if not RecruiterFinder.note_quota_exhausted:
+                add_note_btn = dialog.locator(
+                    "button:has-text('Adicionar nota'), button:has-text('Add a note'), button:has-text('Añadir una nota'), button:has-text('Añadir nota'), "
+                    "button[aria-label*='Adicionar nota' i], button[aria-label*='Add a note' i], button[aria-label*='Añadir' i]"
+                ).first
+
+                if add_note_btn.count() > 0 and add_note_btn.is_visible():
+                    try:
+                        add_note_btn.click(force=True)
+                        time.sleep(1.2)
+
+                        # Verificar se abriu o textarea ou se o LinkedIn exibiu o paywall de notas gratuitas esgotadas
+                        current_dialog = self.page.locator("div[role='dialog']:visible, .artdeco-modal:visible").first
+                        textarea = current_dialog.locator("textarea#custom-message, textarea[name='message'], textarea").first
+                        current_text = current_dialog.inner_text().lower()
+
+                        is_premium_upsell = (textarea.count() == 0 or not textarea.is_visible()) and any(w in current_text for w in [
+                            "não tem notas personalizadas gratuitas", "no tienes notas personalizadas gratuitas",
+                            "out of free personalized notes", "personalizados você quiser com premium",
+                            "personalizadas você quiser com premium", "assine o premium", "try premium"
+                        ])
+
+                        if is_premium_upsell:
+                            logger.info("Cota de notas personalizadas gratuitas do LinkedIn esgotada nesta conta. Alternando para convite padrão sem nota.")
+                            RecruiterFinder.note_quota_exhausted = True
+                            upsell_detected = True
+
+                            # Fechar modal de upsell do Premium
+                            dismiss_btn = current_dialog.locator(
+                                "button.artdeco-modal__dismiss, button[aria-label*='Dismiss' i], button[aria-label*='Fechar' i], button[aria-label*='Close' i]"
+                            ).first
+                            if dismiss_btn.count() > 0:
+                                dismiss_btn.click(force=True)
+                                time.sleep(1.2)
+
+                            # Re-abrir o fluxo de conexão limpo para enviar sem nota
+                            if not (connect_btn and connect_btn.count() > 0 and connect_btn.is_visible()):
+                                top_card = self.page.locator(".pv-top-card-v2-ctas, .pvs-profile-actions, main section").first
+                                for sel in direct_connect_selectors:
+                                    loc = top_card.locator(sel).first if top_card.count() > 0 else self.page.locator(sel).first
+                                    if loc.count() > 0 and loc.is_visible():
+                                        connect_btn = loc
+                                        break
+                                if not connect_btn or not connect_btn.is_visible():
+                                    more_btn = top_card.locator("button:has-text('Mais'), button:has-text('More')").first
+                                    if more_btn.count() > 0 and more_btn.is_visible():
+                                        more_btn.click(force=True)
+                                        time.sleep(1.0)
+                                        connect_btn = self.page.locator(
+                                            "div[role='menu'] span:has-text('Conectar'), div[role='menu'] span:has-text('Connect'), "
+                                            "div[role='menu'] div:has-text('Conectar'), div[role='menu'] div:has-text('Connect')"
+                                        ).first
+
+                            if connect_btn and connect_btn.count() > 0 and connect_btn.is_visible():
+                                connect_btn.click(force=True)
+                                time.sleep(1.5)
+                                dialog = self.page.locator("div[role='dialog']:visible, .artdeco-modal:visible").first
+                        elif textarea.count() > 0 and textarea.is_visible():
+                            clean_note = note.strip()[:200]
+                            textarea.click(force=True)
+                            textarea.fill(clean_note)
+                            textarea.dispatch_event("input")
+                            time.sleep(1.0)
+                            note_filled = True
+                            dialog = current_dialog
+                            logger.info(f"Nota personalizada preenchida com sucesso ({len(clean_note)} caracteres).")
+                    except Exception as note_e:
+                        logger.debug(f"Não foi possível anexar nota: {note_e}")
 
             # 5. Localizar e clicar no botão Enviar ESCOPADAMENTE NO MODAL ATIVO
-            # No modal ativo, o botão primário submete o convite (com nota ou sem nota)
             send_btn = dialog.locator(
-                "button.artdeco-button--primary:visible, button:has-text('Enviar'):visible, "
-                "button:has-text('Enviar sem nota'):visible, button:has-text('Send'):visible, "
+                "button:has-text('Enviar sem nota'):visible, button:has-text('Send without a note'):visible, "
+                "button:has-text('Enviar sin nota'):visible, button.artdeco-button--primary:visible, "
+                "button:has-text('Enviar'):visible, button:has-text('Send'):visible, "
                 "button:has-text('Send now'):visible, button:has-text('Enviar ahora'):visible, "
                 "button[aria-label*='Enviar' i]:visible, button[aria-label*='Send' i]:visible"
             ).first
@@ -378,7 +429,12 @@ class RecruiterFinder:
             if send_btn.count() > 0 and send_btn.is_visible():
                 send_btn.click(force=True)
                 time.sleep(2.5)
-                msg_status = "com nota personalizada" if note_filled else "padrão (sem nota)"
+                if note_filled:
+                    msg_status = "com nota personalizada"
+                elif upsell_detected or RecruiterFinder.note_quota_exhausted:
+                    msg_status = "padrão sem nota (cota mensal gratuita de notas do LinkedIn esgotada)"
+                else:
+                    msg_status = "padrão (sem nota)"
                 logger.info(f"Convite de conexão ({msg_status}) enviado com sucesso para {recruiter_profile_url}!")
                 return True, f"Convite de conexão ({msg_status}) enviado com sucesso!"
 
