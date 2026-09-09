@@ -161,20 +161,34 @@ class RecruiterFinder:
         loc_lower = location.lower() if location else ""
         title_lower = clean_title.lower()
 
+        is_explicit_portugal = any(
+            w in loc_lower for w in ["portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro", "faro", "setúbal", "setubal", "funchal", "leiria"]
+        )
+
         is_explicit_spain = (
-            any(w in loc_lower for w in ["spain", "españa", "madrid", "barcelona", "valencia", "sevilla", "málaga"])
-            or any(w in title_lower for w in ["ingeniero", "ciberseguridad", "seguridad", "desarrollador", "administrador de sistemas"])
+            not is_explicit_portugal
+            and (
+                any(w in loc_lower for w in ["spain", "españa", "madrid", "barcelona", "valencia", "sevilla", "málaga"])
+                or any(w in title_lower for w in ["ingeniero", "ciberseguridad", "seguridad", "desarrollador", "administrador de sistemas"])
+            )
         )
 
         is_explicit_brazil = (
-            not is_explicit_spain
+            not is_explicit_portugal
+            and not is_explicit_spain
             and (
                 any(w in loc_lower for w in ["brazil", "brasil", "são paulo", "sao paulo", ", sp", " sp ", "campinas", "jundiaí", "jundiai", "rio de janeiro", "curitiba", "belo horizonte"])
                 or any(w in title_lower for w in ["engenheiro", "analista", "estágio", "especialista", "segurança da informação"])
             )
         )
 
-        if is_explicit_spain:
+        if is_explicit_portugal:
+            note = f"Olá {first_name}, candidatei-me a {clean_title} na {clean_company}. Foco em Cloud & Infra (AZ-104, Azure, Linux). Prazer em conectar!"
+            if len(note) > 195:
+                note = f"Olá {first_name}, candidatei-me a {clean_title}. Foco em Cloud & Infra (AZ-104, Azure, Linux). Prazer em conectar!"
+            if len(note) > 195:
+                note = f"Olá {first_name}, candidatei-me à vaga Cloud/Infra (AZ-104, Azure, Linux). Prazer em conectar!"
+        elif is_explicit_spain:
             note = f"Hola {first_name}, me postulé a {clean_title} en {clean_company}. Cloud & Infra (AZ-104, Azure, Linux). ¡Un placer conectar!"
             if len(note) > 195:
                 note = f"Hola {first_name}, me postulé a {clean_title}. Cloud & Infra (AZ-104, Azure, Linux). ¡Un placer conectar!"
@@ -199,16 +213,33 @@ class RecruiterFinder:
         """
         Gera um pitch executivo de alto impacto de 3 parágrafos para abordagem direta ao Tech Lead / Recrutador.
         Adequado para E-mail frio, mensagem direta ou InMail.
-        Disponível em Inglês (EUA/Global) ou Espanhol (Espanha).
+        Disponível em Português (Portugal/Brasil), Espanhol (Espanha) ou Inglês (EUA/Global).
         """
         first_name = recruiter_name.strip().split()[0] if recruiter_name else "there"
         clean_company = company.strip() if company else "your team"
         clean_title = job_title.strip() if job_title else "Cloud Engineer"
 
         loc_lower = location.lower() if location else ""
+        is_portugal = any(w in loc_lower for w in ["portugal", "lisboa", "lisbon", "porto", "braga", "coimbra"])
         is_spanish = any(w in loc_lower for w in ["spain", "españa", "madrid", "barcelona", "valencia"]) or any(w in clean_title.lower() for w in ["ingeniero", "sistemas", "redes"])
 
-        if is_spanish:
+        if is_portugal:
+            pitch = (
+                f"Assunto: Candidatura: {clean_title} — Murilo Martins (Engenheiro Cloud Azure AZ-104)\n\n"
+                f"Olá {first_name},\n\n"
+                f"Apresento a minha candidatura à posição de {clean_title} na {clean_company}. "
+                f"Acompanho com grande interesse a evolução técnica da equipa e a infraestrutura tecnológica desenvolvida.\n\n"
+                f"Possuo mais de 4 anos de experiência prática na conceção, administração e segurança de ambientes Microsoft Azure e Linux. "
+                f"Detenho a certificação oficial Microsoft Certified: Azure Administrator Associate (AZ-104), experiência consolidada em redes, "
+                f"firewalls Fortinet (FSSO), SIEM (Wazuh) e automação de rotinas em Python e Bash. Estou disponível para início imediato sob contrato internacional "
+                f"B2B (prestação de serviços com emissão de fatura) ou regime de vistos / relocalização.\n\n"
+                f"Teria todo o gosto em realizar uma breve conversa de 15 minutos para partilhar como a minha experiência pode acrescentar valor imediato à equipa da {clean_company}.\n\n"
+                f"Com os melhores cumprimentos,\n\n"
+                f"Murilo Martins\n"
+                f"Engenheiro de Cloud e Infraestrutura\n"
+                f"LinkedIn: https://www.linkedin.com/in/murilo-martins-0b9938186 | GitHub: https://github.com/murilorosa-beep"
+            )
+        elif is_spanish:
             pitch = (
                 f"Asunto: Candidatura: {clean_title} — Murilo Martins (Ingeniero Cloud Azure AZ-104)\n\n"
                 f"Hola {first_name},\n\n"

@@ -120,10 +120,19 @@ class JobMatcher:
             "relocate to", "support relocation"
         ]
 
-        # Termos de atalho Espanha / UE (Ley de Startups, Nômade Digital, 2 anos de residência)
+        # Termos de atalho Portugal (Prioridade Máxima), Espanha e Europa / UE
+        self.portugal_keywords = [
+            "portugal", "lisboa", "lisbon", "porto", "braga", "coimbra", "aveiro",
+            "funchal", "setúbal", "setubal", "faro", "leiria", "remoto portugal"
+        ]
         self.spain_fasttrack_keywords = [
             "spain", "españa", "madrid", "barcelona", "valencia", "nómada digital",
             "nomada digital", "ley de startups", "visado de nómada", "visado de trabajo"
+        ]
+        self.europe_keywords = [
+            "europe", "european union", "unión europea", "união europeia",
+            "emea", "eu remote", "remote europe", "ireland", "netherlands",
+            "germany", "poland", "sweden", "france", "italy", "switzerland"
         ]
 
         # Termos que indicam bloqueio estrito para residentes nos EUA
@@ -174,17 +183,37 @@ class JobMatcher:
         if company:
             comp_lower = company.lower().strip()
             for blocked in self.company_blacklist:
-                if blocked and blocked in comp_lower:
-                    return {
-                        "score": 10,
-                        "matched_skills": [],
-                        "recommendation": "SKIP",
-                        "summary": f"Empresa na Blacklist ({company}).",
-                        "is_latam_friendly": False,
-                        "has_visa_sponsorship": False,
-                        "is_spain_fasttrack": False,
-                        "us_only_blocked": False
-                    }
+                if not blocked:
+                    continue
+                # Termos curtos (ex: 'gag', 'beep') usam fronteira de palavras para evitar falso-positivo (ex: 'engaging')
+                if len(blocked) <= 4:
+                    if re.search(r"\b" + re.escape(blocked) + r"\b", comp_lower):
+                        return {
+                            "score": 10,
+                            "matched_skills": [],
+                            "recommendation": "SKIP",
+                            "summary": f"Empresa na Blacklist ({company}).",
+                            "is_latam_friendly": False,
+                            "has_visa_sponsorship": False,
+                            "is_spain_fasttrack": False,
+                            "is_portugal": False,
+                            "is_europe": False,
+                            "us_only_blocked": False
+                        }
+                else:
+                    if blocked in comp_lower:
+                        return {
+                            "score": 10,
+                            "matched_skills": [],
+                            "recommendation": "SKIP",
+                            "summary": f"Empresa na Blacklist ({company}).",
+                            "is_latam_friendly": False,
+                            "has_visa_sponsorship": False,
+                            "is_spain_fasttrack": False,
+                            "is_portugal": False,
+                            "is_europe": False,
+                            "us_only_blocked": False
+                        }
 
         # 0.2 Verificação de Blacklist de Palavras no Título
         title_lower = job_title.lower()
@@ -305,7 +334,9 @@ class JobMatcher:
         # 1.2 Análise de Vistos, Contratação Global e Restrições US-Only
         is_latam_friendly = any(kw in text_to_analyze for kw in self.latam_friendly_keywords)
         has_visa_sponsorship = any(kw in text_to_analyze for kw in self.visa_sponsorship_keywords)
+        is_portugal = any(kw in text_to_analyze for kw in self.portugal_keywords)
         is_spain_fasttrack = any(kw in text_to_analyze for kw in self.spain_fasttrack_keywords)
+        is_europe = any(kw in text_to_analyze for kw in self.europe_keywords)
         us_only_blocked = any(kw in text_to_analyze for kw in self.us_only_block_keywords)
 
         filters_cfg = self.config.get("filters", {})
@@ -396,17 +427,23 @@ class JobMatcher:
                     total_score = max(10, total_score - 35)
                     break
 
-        # 4. Bônus de Oportunidades Internacionais Estratégicas
+        # 4. Bônus de Oportunidades Internacionais Estratégicas (Prioridade Portugal & Espanha)
         badge_tags = []
+        if is_portugal:
+            total_score = min(100, total_score + 15)
+            badge_tags.append("🇵🇹 Portugal (Prioridade)")
+        if is_spain_fasttrack:
+            total_score = min(100, total_score + 10)
+            badge_tags.append("🇪🇸 Espanha")
+        elif is_europe and not is_portugal:
+            total_score = min(100, total_score + 5)
+            badge_tags.append("🇪🇺 Europa")
         if has_visa_sponsorship:
-            total_score = min(100, total_score + 12)
+            total_score = min(100, total_score + 10)
             badge_tags.append("✈️ Patrocínio de Visto")
         if is_latam_friendly:
             total_score = min(100, total_score + 8)
             badge_tags.append("🌎 LatAm/B2B")
-        if is_spain_fasttrack:
-            total_score = min(100, total_score + 8)
-            badge_tags.append("🇪🇸 Rota Espanha/UE")
 
         tag_prefix = f"[{' | '.join(badge_tags)}] " if badge_tags else ""
 
@@ -434,5 +471,7 @@ class JobMatcher:
             "is_latam_friendly": is_latam_friendly,
             "has_visa_sponsorship": has_visa_sponsorship,
             "is_spain_fasttrack": is_spain_fasttrack,
+            "is_portugal": is_portugal,
+            "is_europe": is_europe,
             "us_only_blocked": us_only_blocked
         }

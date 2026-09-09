@@ -213,19 +213,26 @@ with st.sidebar:
 
     # Alternador Rápido de Presets na Sidebar (1 Clique)
     st.markdown("### 🎯 Foco de Mercado")
-    active_preset = cfg.get("search", {}).get("preset", "spain")
-    col_sb1, col_sb2, col_sb3 = st.columns(3)
+    active_preset = cfg.get("search", {}).get("preset", "portugal_spain")
+    col_sb1, col_sb2 = st.columns(2)
     with col_sb1:
-        if st.button("🇪🇸 Espanha", type="primary" if active_preset == "spain" else "secondary", use_container_width=True, help="Espanha - Foco 100% no mercado espanhol"):
+        if st.button("🇵🇹 PT & 🇪🇸 ES", type="primary" if active_preset == "portugal_spain" else "secondary", use_container_width=True, help="Portugal e Espanha (Prioridade Europa)"):
+            apply_preset("portugal_spain")
+            st.toast("Modo Portugal & Espanha Ativado!", icon="🇵🇹")
+            st.rerun()
+    with col_sb2:
+        if st.button("🇪🇸 Espanha", type="primary" if active_preset == "spain" else "secondary", use_container_width=True, help="Espanha - Foco exclusivo no mercado espanhol"):
             apply_preset("spain")
             st.toast("Modo Espanha Ativado!", icon="🇪🇸")
             st.rerun()
-    with col_sb2:
+
+    col_sb3, col_sb4 = st.columns(2)
+    with col_sb3:
         if st.button("🌍 EUA+ES", type="primary" if active_preset == "international" else "secondary", use_container_width=True, help="EUA e Espanha - Todas as modalidades"):
             apply_preset("international")
             st.toast("Modo Internacional Ativado!", icon="🌍")
             st.rerun()
-    with col_sb3:
+    with col_sb4:
         if st.button("🇧🇷 Brasil", type="primary" if active_preset == "brazil" else "secondary", use_container_width=True, help="Brasil - Home Office & Híbrido"):
             apply_preset("brazil")
             st.toast("Modo Brasil Ativado (Home & Híbrido)!", icon="🇧🇷")

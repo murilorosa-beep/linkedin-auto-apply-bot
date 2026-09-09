@@ -150,12 +150,14 @@ class ApplicationEngine:
 
             total_jobs_processed_cycle = 0
 
-            for keyword in keywords:
-                if stop_event and stop_event.is_set():
-                    logger.info("Interrupcao solicitada pela interface.")
+            for location in locations:
+                if (stop_event and stop_event.is_set()) or applied_today >= max_daily:
                     break
 
-                for location in locations:
+                console.print(f"\n[bold green]📍 Prioridade Regional Atual:[/bold green] [bold white]{location}[/bold white]")
+                logger.info(f"Processando localidade prioritária: {location}")
+
+                for keyword in keywords:
                     if (stop_event and stop_event.is_set()) or applied_today >= max_daily:
                         break
 

@@ -1,19 +1,25 @@
 search:
-  preset: spain
+  preset: portugal_spain
   keywords:
-  - Ingeniero Cloud
-  - Administrador de Sistemas
-  - Ingeniero DevOps
-  - Ingeniero de Ciberseguridad
-  - Azure Administrator
   - Cloud Engineer
+  - Engenheiro Cloud
+  - DevOps Engineer
+  - Engenheiro DevOps
+  - Azure Administrator
+  - Administrador de Sistemas
   - Infrastructure Engineer
+  - Engenheiro de Infraestrutura
   - Cloud Security Engineer
   - Linux Systems Engineer
-  - Administrador de Redes
+  - Engenheiro de Redes
+  - Systems Administrator
+  - Ingeniero Cloud
+  - Ingeniero DevOps
   - Técnico de Sistemas
   locations:
+  - Portugal
   - Spain
+  - European Union
   workplace_types:
   - remote
   - hybrid
@@ -22,6 +28,32 @@ search:
   easy_apply_only: true
   date_posted: past_month
   presets:
+    portugal_spain:
+      name: Portugal & Espanha (Prioridade Europa)
+      locations:
+      - Portugal
+      - Spain
+      - European Union
+      workplace_types:
+      - remote
+      - hybrid
+      - on_site
+      keywords:
+      - Cloud Engineer
+      - Engenheiro Cloud
+      - DevOps Engineer
+      - Engenheiro DevOps
+      - Azure Administrator
+      - Administrador de Sistemas
+      - Infrastructure Engineer
+      - Engenheiro de Infraestrutura
+      - Cloud Security Engineer
+      - Linux Systems Engineer
+      - Engenheiro de Redes
+      - Systems Administrator
+      - Ingeniero Cloud
+      - Ingeniero DevOps
+      - Técnico de Sistemas
     spain:
       name: Espanha (Remoto & Internacional)
       locations:
@@ -95,6 +127,20 @@ filters:
   only_latam_friendly: false
   visa_sponsorship_only: false
   company_blacklist:
+  # Empresas atuais e anteriores do candidato (Proteção Estrita)
+  - G.A.G. Electronics Recycling
+  - GAG Electronics
+  - G.A.G.
+  - GAG
+  - Definity Tecnologia
+  - Definity
+  - GreenTec I.T Solutions
+  - GreenTec IT Solutions
+  - GreenTec
+  - GreenTec I.T
+  - Beep Saúde
+  - Beep
+  # Consultorias genéricas e outsourcing de massa
   - BairesDev
   - Turing
   - Crossover

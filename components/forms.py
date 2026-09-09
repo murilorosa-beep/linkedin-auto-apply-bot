@@ -18,6 +18,13 @@ def render_search_config_form(current_config: Dict[str, Any]) -> Dict[str, Any]:
     # Botões de Preset de 1 Clique
     col_p1, col_p2, col_p3, col_p4 = st.columns(4)
     
+    preset_keywords_pt_es = [
+        "Cloud Engineer", "Engenheiro Cloud", "DevOps Engineer", "Engenheiro DevOps",
+        "Azure Administrator", "Administrador de Sistemas", "Infrastructure Engineer",
+        "Engenheiro de Infraestrutura", "Cloud Security Engineer", "Linux Systems Engineer",
+        "Engenheiro de Redes", "Systems Administrator", "Ingeniero Cloud",
+        "Ingeniero DevOps", "Técnico de Sistemas"
+    ]
     preset_keywords_es = [
         "Ingeniero Cloud", "Administrador de Sistemas", "Ingeniero DevOps",
         "Ingeniero de Ciberseguridad", "Azure Administrator", "Cloud Engineer",
@@ -38,35 +45,40 @@ def render_search_config_form(current_config: Dict[str, Any]) -> Dict[str, Any]:
 
     selected_preset = current_preset
     with col_p1:
-        if st.button("🇪🇸 Modo Espanha", use_container_width=True, type="primary" if current_preset == "spain" else "secondary", key="form_btn_es"):
+        if st.button("🇵🇹 PT & 🇪🇸 ES (Europa)", use_container_width=True, type="primary" if current_preset == "portugal_spain" else "secondary", key="form_btn_pt_es"):
+            apply_preset("portugal_spain")
+            st.session_state["form_keywords"] = "\n".join(preset_keywords_pt_es)
+            st.session_state["form_locations"] = ["Portugal", "Spain", "European Union"]
+            st.session_state["form_workplace"] = "all"
+            st.rerun()
+
+    with col_p2:
+        if st.button("🇪🇸 Apenas Espanha", use_container_width=True, type="primary" if current_preset == "spain" else "secondary", key="form_btn_es"):
             apply_preset("spain")
             st.session_state["form_keywords"] = "\n".join(preset_keywords_es)
             st.session_state["form_locations"] = ["Spain"]
             st.session_state["form_workplace"] = "all"
             st.rerun()
 
-    with col_p2:
-        if st.button("🌍 Internacional (EUA+ES)", use_container_width=True, type="primary" if current_preset == "international" else "secondary", key="form_btn_int"):
+    with col_p3:
+        if st.button("🌍 EUA + ES", use_container_width=True, type="primary" if current_preset == "international" else "secondary", key="form_btn_int"):
             apply_preset("international")
             st.session_state["form_keywords"] = "\n".join(preset_keywords_int)
             st.session_state["form_locations"] = ["United States", "Spain"]
             st.session_state["form_workplace"] = "all"
             st.rerun()
 
-    with col_p3:
-        if st.button("🇧🇷 Brasil (Home & Híbrido)", use_container_width=True, type="primary" if current_preset == "brazil" else "secondary", key="form_btn_br"):
+    with col_p4:
+        if st.button("🇧🇷 Brasil", use_container_width=True, type="primary" if current_preset == "brazil" else "secondary", key="form_btn_br"):
             apply_preset("brazil")
             st.session_state["form_keywords"] = "\n".join(preset_keywords_br)
             st.session_state["form_locations"] = ["Brazil", "São Paulo, Brazil", "Campinas, São Paulo, Brazil"]
             st.session_state["form_workplace"] = "remote_hybrid"
             st.rerun()
 
-    with col_p4:
-        if st.button("⚙️ Personalizado", use_container_width=True, type="primary" if current_preset == "custom" else "secondary", key="form_btn_custom"):
-            selected_preset = "custom"
-            st.rerun()
-
-    if selected_preset == "spain":
+    if selected_preset == "portugal_spain":
+        st.info("🇵🇹 **Modo Portugal & Espanha (Europa) Ativo:** Prioridade máxima em Portugal, seguido por Espanha e União Europeia. Termos em português, espanhol e inglês.")
+    elif selected_preset == "spain":
         st.info("🇪🇸 **Modo Espanha Ativo:** Foco exclusivo no mercado espanhol com termos em espanhol e inglês (Ingeniero Cloud, Administrador de Sistemas, Azure, DevOps).")
     elif selected_preset == "international":
         st.info("🌍 **Modo Internacional Ativo:** Busca aberta a qualquer modalidade (Remoto, Híbrido ou Presencial/Relocação) nos EUA e Espanha.")
