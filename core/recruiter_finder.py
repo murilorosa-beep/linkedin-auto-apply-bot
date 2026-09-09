@@ -1,6 +1,6 @@
 """
 Módulo de detecção e abordagem de recrutadores (Hiring Team) na página da vaga do LinkedIn.
-Localiza os dados do recrutador e gera notas de conexão hiperpersonalizadas de até 300 caracteres.
+Localiza os dados do recrutador e gera notas de conexão hiperpersonalizadas de até 200 caracteres.
 """
 
 import re
@@ -101,7 +101,7 @@ class RecruiterFinder:
             if not name or not clean_url:
                 return None
 
-            # Gerar nota cirúrgica de até 300 caracteres
+            # Gerar nota cirúrgica de até 200 caracteres
             note = self.build_connection_note(name, job.get("title", ""), job.get("company", ""), job.get("location", ""))
             # Gerar pitch executivo de 3 parágrafos para abordagem direta
             pitch = self.build_executive_pitch(name, job.get("title", ""), job.get("company", ""), job.get("location", ""))
@@ -140,17 +140,21 @@ class RecruiterFinder:
 
     def build_connection_note(self, recruiter_name: str, job_title: str, company: str, location: str = "") -> str:
         """
-        Gera uma nota de convite para conexão respeitando rigorosamente o limite de 300 caracteres do LinkedIn.
-        Suporta Espanhol (para vagas da Espanha) e Inglês (para vagas dos EUA e internacionais).
+        Gera uma nota de convite para conexão respeitando rigorosamente o limite de 200 caracteres do LinkedIn.
+        Suporta Espanhol (Espanha), Português (Brasil) e Inglês (EUA / Internacional).
         """
-        # Extrai o primeiro nome para uma abordagem mais calorosa e humana
+        # Extrai o primeiro nome para uma abordagem humana e concisa
         first_name = recruiter_name.strip().split()[0] if recruiter_name else "there"
+        if len(first_name) > 15:
+            first_name = first_name[:13] + ".."
         clean_company = company.strip() if company else "your team"
         clean_title = job_title.strip() if job_title else "Cloud Engineer"
 
-        # Abrevia títulos longos para garantir o limite de 300 caracteres
-        if len(clean_title) > 35:
-            clean_title = clean_title[:32] + "..."
+        # Abrevia títulos e empresas longos para nunca ultrapassar o teto
+        if len(clean_title) > 28:
+            clean_title = clean_title[:25] + "..."
+        if len(clean_company) > 25:
+            clean_company = clean_company[:22] + "..."
 
         loc_lower = location.lower() if location else ""
         title_lower = clean_title.lower()
@@ -169,40 +173,25 @@ class RecruiterFinder:
         )
 
         if is_explicit_spain:
-            note = (
-                f"Hola {first_name}, acabo de postularme a {clean_title} en {clean_company}. "
-                f"Con 4+ años en Cloud e Infraestructura (AZ-104, Azure, Linux), "
-                f"mi perfil encaja con sus objetivos. ¡Será un placer conectar!"
-            )
-            if len(note) > 300:
-                note = (
-                    f"Hola {first_name}, me postulé a {clean_title} en {clean_company}. "
-                    f"Cloud/Infra Engineer (AZ-104, Azure, Linux). ¡Un placer conectar!"
-                )
+            note = f"Hola {first_name}, me postulé a {clean_title} en {clean_company}. Cloud & Infra (AZ-104, Azure, Linux). ¡Un placer conectar!"
+            if len(note) > 195:
+                note = f"Hola {first_name}, me postulé a {clean_title}. Cloud & Infra (AZ-104, Azure, Linux). ¡Un placer conectar!"
+            if len(note) > 195:
+                note = f"Hola {first_name}, apliqué a su vacante Cloud/Infra (AZ-104, Azure, Linux). ¡Un placer conectar!"
         elif is_explicit_brazil:
-            note = (
-                f"Olá {first_name}, me candidatei à vaga de {clean_title} na {clean_company}. "
-                f"Com 4+ anos em Cloud e Infraestrutura (certificação AZ-104, Azure, Linux), "
-                f"tenho forte interesse em contribuir com a equipe. Será um prazer conectar!"
-            )
-            if len(note) > 300:
-                note = (
-                    f"Olá {first_name}, apliquei para {clean_title} na {clean_company}. "
-                    f"Cloud & Infra Engineer (AZ-104, Azure, Linux). Muito prazer em conectar!"
-                )
+            note = f"Olá {first_name}, apliquei para {clean_title} na {clean_company}. Foco em Cloud & Infra (AZ-104, Azure, Linux). Prazer em conectar!"
+            if len(note) > 195:
+                note = f"Olá {first_name}, apliquei para {clean_title}. Foco em Cloud & Infra (AZ-104, Azure, Linux). Prazer em conectar!"
+            if len(note) > 195:
+                note = f"Olá {first_name}, me candidatei à vaga Cloud/Infra (AZ-104, Azure, Linux). Prazer em conectar!"
         else:
-            note = (
-                f"Hi {first_name}, I just applied for the {clean_title} role at {clean_company}. "
-                f"With 4+ years in Cloud/Infrastructure (AZ-104 certified, Azure & Linux), "
-                f"my background aligns strongly with your team's goals. Would love to connect!"
-            )
-            if len(note) > 300:
-                note = (
-                    f"Hi {first_name}, applied for {clean_title} at {clean_company}. "
-                    f"Cloud/Infra Engineer (AZ-104, Azure, Linux). Would love to connect!"
-                )
+            note = f"Hi {first_name}, I applied for {clean_title} at {clean_company}. Cloud/Infra Engineer (AZ-104, Azure & Linux). Would love to connect!"
+            if len(note) > 195:
+                note = f"Hi {first_name}, applied for {clean_title}. Cloud/Infra Engineer (AZ-104, Azure, Linux). Would love to connect!"
+            if len(note) > 195:
+                note = f"Hi {first_name}, applied for your Cloud/Infra role (AZ-104, Azure & Linux). Would love to connect!"
 
-        return note[:300]
+        return note.strip()[:200]
 
     def build_executive_pitch(self, recruiter_name: str, job_title: str, company: str, location: str = "") -> str:
         """
@@ -366,7 +355,7 @@ class RecruiterFinder:
 
                     textarea = dialog.locator("textarea#custom-message, textarea[name='message'], textarea").first
                     if textarea.count() > 0 and textarea.is_visible():
-                        clean_note = note[:300]
+                        clean_note = note.strip()[:200]
                         textarea.click(force=True)
                         textarea.fill(clean_note)
                         # Disparar evento de input para habilitar o botão Enviar

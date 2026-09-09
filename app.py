@@ -484,7 +484,7 @@ elif page == "🔍 Buscar Vagas":
 # ==============================================================================
 elif page == "🤝 Recrutadores & Outreach":
     st.title("🤝 Gestão de Recrutadores & Outreach")
-    st.caption("Conecte-se diretamente com os recrutadores das vagas aplicadas com notas cirúrgicas personalizadas (até 300 caracteres)")
+    st.caption("Conecte-se diretamente com os recrutadores das vagas aplicadas com notas cirúrgicas personalizadas (até 200 caracteres)")
 
     rec_stats = tracker.get_recruiter_stats()
     r1, r2, r3, r4 = st.columns(4)
@@ -551,7 +551,7 @@ elif page == "🤝 Recrutadores & Outreach":
 
                 c_note, c_actions = st.columns([3, 1])
                 with c_note:
-                    st.caption("Nota de Convite de Conexão (até 300 caracteres):")
+                    st.caption("Nota de Convite de Conexão (até 200 caracteres):")
                     st.code(note, language="text")
 
                     # Direct Pitch Executivo de 3 Parágrafos
@@ -567,13 +567,13 @@ elif page == "🤝 Recrutadores & Outreach":
                     if profile_url:
                         st.link_button("🔗 Abrir no LinkedIn", profile_url, use_container_width=True)
                     if status != "SENT":
-                        if st.button("🚀 Auto-Connect", key=f"autoconnect_{rec_id}", use_container_width=True, help="Envia convite com a nota de até 300 caracteres pelo Playwright"):
+                        if st.button("🚀 Auto-Connect", key=f"autoconnect_{rec_id}", use_container_width=True, help="Envia convite com a nota de até 200 caracteres pelo Playwright"):
                             if st.session_state.get("bot_running", False):
                                 st.warning("O robô principal está rodando. Pause-o temporariamente para enviar convites avulsos.")
                             else:
                                 with st.spinner(f"Enviando convite para {name}..."):
                                     from core.recruiter_finder import send_connection_invite_standalone
-                                    ok, reason = send_connection_invite_standalone(profile_url, note, cfg)
+                                    ok, reason = send_connection_invite_standalone(profile_url, (note or "")[:200].strip(), cfg)
                                     if ok:
                                         tracker.update_recruiter_status(rec_id, "SENT")
                                         st.toast(f"Convite enviado para {name}!", icon="🤝")
@@ -923,7 +923,7 @@ elif page == "⚙️ Configurações":
         auto_connect = st.toggle(
             "🤝 Auto-Connect com Recrutadores",
             value=cfg.get("bot", {}).get("auto_connect_recruiters", False),
-            help="Ao identificar um recrutador durante a candidatura, envia automaticamente um convite com nota personalizada de até 300 caracteres."
+            help="Ao identificar um recrutador durante a candidatura, envia automaticamente um convite com nota personalizada de até 200 caracteres."
         )
         if auto_connect:
             st.success("✔ **Auto-Connect Ativo:** Recrutadores receberão convites com nota cirúrgica após a candidatura.")
