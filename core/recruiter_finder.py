@@ -12,10 +12,16 @@ logger = logging.getLogger("AutoApplyBot")
 
 
 class RecruiterFinder:
-    def __init__(self, page: Page, profile: Dict[str, Any]):
+    def __init__(self, page: Optional[Page] = None, profile: Optional[Dict[str, Any]] = None):
         self.page = page
-        self.profile = profile
-        personal = profile.get("personal", {})
+        if profile is None:
+            from utils.config_manager import load_profile
+            try:
+                profile = load_profile()
+            except Exception:
+                profile = {}
+        self.profile = profile or {}
+        personal = self.profile.get("personal", {})
         self.candidate_name = personal.get("full_name", "Murilo Martins")
 
     def extract_recruiter_info(self, job: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -356,23 +362,24 @@ def send_connection_invite_standalone(profile_url: str, note: str, config: Optio
     envia o convite de conexão com nota personalizada e encerra o navegador.
     """
     from core.browser import BrowserManager
-    from utils.config_manager import load_config
+    from utils.config_manager import load_config, load_profile
 
     cfg = config or load_config()
+    prof = load_profile()
     session_dir = cfg.get("bot", {}).get("session_dir", ".session")
     headless = cfg.get("bot", {}).get("headless", False)
 
     bm = BrowserManager(session_dir=session_dir, headless=headless)
     try:
         page = bm.start()
-        rf = RecruiterFinder(page)
+        rf = RecruiterFinder(page, prof)
         success, msg = rf.send_connection_invite(profile_url, note)
         return success, msg
     except Exception as e:
         return False, f"Falha ao enviar convite: {str(e)}"
     finally:
         try:
-            bm.stop()
+            bm.close()
         except Exception:
             pass
 

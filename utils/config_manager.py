@@ -20,6 +20,12 @@ def load_config() -> Dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
+def load_profile() -> Dict[str, Any]:
+    """Carrega o perfil do candidato (config/profile.yaml)."""
+    from utils.profile_manager import load_profile as _lp
+    return _lp()
+
+
 def save_config(config_data: Dict[str, Any]):
     """Salva os dados de configuração atualizados no YAML."""
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
