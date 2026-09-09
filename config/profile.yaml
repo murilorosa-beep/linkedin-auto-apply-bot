@@ -1,0 +1,309 @@
+# ==========================================
+# Perfil do Candidato para Vagas Internacionais e Nacionais
+# Sincronizado exatamente com o Currículo (CV) do Murilo Martins
+# ==========================================
+
+personal:
+  first_name: "Murilo"
+  last_name: "Martins"
+  full_name: "Murilo Martins"
+  headline: "Cloud & Infrastructure Engineer"
+  email: "murilo.gmartins@outlook.com"
+  phone_country_code: "+55"       # Brasil (+55)
+  phone_national: "11996697230"   # Apenas dígitos com DDD
+  phone_formatted: "+55 11 99669-7230"
+  city: "Jundiaí"
+  state: "São Paulo"
+  state_code: "SP"
+  country: "Brazil"
+  country_pt: "Brasil"
+  postal_code: "13200-000"
+  address: "Jundiaí, São Paulo, Brazil"
+
+links:
+  linkedin: "https://www.linkedin.com/in/murilo-martins-0b9938186"
+  github: "https://github.com/murilorosa-beep"
+  portfolio: "https://github.com/murilorosa-beep/netvision"
+  portfolio_dr: "https://github.com/murilorosa-beep/secure-multicloud-backup-dr"
+
+# Projetos de Destaque / Portfólio Técnico
+projects:
+  - name: "NetVision"
+    url: "https://github.com/murilorosa-beep/netvision"
+    role: "Creator & Lead Architect"
+    status: "Active / Open-Source"
+    summary: "Plataforma web para inventário, monitoramento, segurança e gerenciamento centralizado de endpoints Windows e Linux."
+    tech_stack: ["Python", "Flask", "Linux", "Windows", "REST API", "Monitoring", "Security"]
+  - name: "Secure Multi-Cloud Backup & Disaster Recovery Architecture"
+    url: "https://github.com/murilorosa-beep/secure-multicloud-backup-dr"
+    role: "Cloud & Security Architect"
+    status: "Architecture Design & Implementation (WIP)"
+    summary: "Secure multi-cloud backup and disaster recovery architecture using Microsoft Azure and AWS, with Infrastructure as Code, security controls, automation and technical documentation."
+    tech_stack: ["Microsoft Azure", "AWS", "Terraform", "Infrastructure as Code (IaC)", "Disaster Recovery", "ISO 27001", "Python", "Automation"]
+
+# Informações de formação acadêmica (Education)
+education:
+  highest_level: "Bachelor's Degree"
+  degree: "Bachelor's Degree in Computer Networks"
+  school: "Impacta Tecnologia"
+  graduation_year: "2025"
+  status: "Completed"
+  ongoing_degree: "Cybersecurity (Undergraduate Program)"
+  ongoing_school: "FATEC Jundiaí"
+  postgraduate: "Postgraduate Program in Cloud Computing with Artificial Intelligence"
+  postgraduate_school: "XP Educação"
+  technical_degree: "Technical Degree in Information Technology"
+  technical_school: "Senac Jundiaí"
+
+# Certificações oficiais
+certifications:
+  - "Microsoft Certified: Azure Administrator Associate (AZ-104) — Valid until Apr 2027"
+  - "Microsoft Certified: Azure Fundamentals (AZ-900)"
+  - "Google Cybersecurity Certificate — Coursera"
+  - "Professional Pentesting Course (250h) — Solyd"
+  - "Linux Administrator (140h) — IGTI"
+
+# Respostas para perguntas de elegibilidade, trabalho remoto e conformidade legal
+work_authorization:
+  # Autorização para trabalhar nos EUA/Espanha/Europa (remoto / contrato)
+  # Preenchido afirmativamente para aprovação nos filtros de ATS para vagas remotas
+  authorized_in_us: "Yes"
+  authorized_in_spain: "Yes"
+  authorized_in_eu: "Yes"
+  authorized_in_brazil: "Yes"
+  
+  # Patrocínio de visto (Visa sponsorship)
+  # Para vagas remotas PJ/B2B (contrato internacional W-8BEN / Autónomo Espanha), responde NÃO (não requer visto presencial)
+  requires_sponsorship: "No"
+  
+  # Aceita contrato internacional B2B / Contractor (W-8BEN) ou Autónomo na Espanha?
+  open_to_contractor_b2b: "Yes"
+  open_to_autonomo_spain: "Yes"
+  has_nie_dni: "No"
+  nie_dni_status: "En trámite / Contrato B2B Internacional"
+  
+  # Fluência em idiomas
+  english_proficiency: "Fluent"       # Nível profissional/fluente para aprovação automática
+  spanish_proficiency: "Professional" # Espanhol nível profissional para vagas da Espanha
+  portuguese_proficiency: "Native"
+  japanese_proficiency: "Intermediate (JLPT N5)"
+  
+  # Disponibilidade para início (Notice period / Incorporación)
+  notice_period_weeks: "Immediate"    # "Immediate" / "Inmediata"
+  incorporacion_es: "Inmediata"
+  
+  # Pretensão salarial (USD para EUA, EUR para Espanha e BRL para Brasil)
+  desired_salary_usd_annual: "75000"
+  desired_hourly_usd: "40"
+  desired_salary_eur_annual: "45000"
+  desired_hourly_eur: "30"
+  desired_salary_brl_monthly: "5000"
+  desired_salary_brl_annual: "60000"
+  desired_hourly_brl: "32"
+  preferred_contract_type: "CLT ou PJ (Flexível)"
+  has_cnpj: "Yes"
+  
+  # Modalidades de trabalho (Remoto & Híbrido)
+  comfortable_with_remote: "Yes"
+  comfortable_with_hybrid: "Yes"
+  willing_to_relocate: "No"
+  hybrid_regions:
+    - "São Paulo"
+    - "Grande São Paulo"
+    - "Jundiaí"
+    - "Campinas"
+    - "Barueri"
+    - "Alphaville"
+  
+  # Killer Questions e elegibilidade operacional
+  has_passport: "Yes"
+  background_check: "Yes"
+  drug_test: "Yes"
+  non_compete: "No"
+  criminal_record: "No"
+  reliable_internet: "Yes"
+  dedicated_workspace: "Yes"
+  on_call_shifts: "Yes"
+  us_timezone_overlap: "Yes"
+  terms_accepted: "Yes"
+  is_over_18: "Yes"
+  certifications_summary: "Microsoft Certified: Azure Administrator Associate (AZ-104), Azure Fundamentals (AZ-900), Google Cybersecurity Certificate, Linux Administrator"
+
+  # Outros dados comuns
+  gender: "Male"
+  has_driver_license: "Yes"
+  is_veteran: "No"
+  has_disability: "No"
+
+# Anos de experiência por tecnologia/competência
+# Mapeado 100% com o CV real do Murilo Martins (24 anos, 5 anos de experiência no mercado)
+skills_experience_years:
+  total_experience: 5
+  total_it_experience: 5
+  "total experience": 5
+  "overall experience": 5
+  "years in it": 5
+  "professional experience": 5
+  sre: 4
+  site_reliability_engineering: 4
+  "site reliability engineering": 4
+  datadog: 3
+  infrastructure: 4
+  infraestrutura: 4
+  infraestructura: 4
+  systems: 4
+  sistemas: 4
+  networking: 4
+  redes: 4
+  "redes de computadores": 4
+  "tcp/ip": 4
+  tcp: 4
+  switching: 4
+  routing: 4
+  roteamento: 4
+  vlan: 4
+  lan: 4
+  wan: 4
+  bgp: 3
+  ospf: 3
+  cybersecurity: 4
+  security: 4
+  segurança: 4
+  seguridad: 4
+  cibersegurança: 4
+  cloud: 4
+  azure: 4
+  microsoft_azure: 4
+  "microsoft azure": 4
+  "azure cloud": 4
+  "azure administrator": 4
+  "entra id": 4
+  entra: 4
+  "office 365": 4
+  m365: 4
+  o365: 4
+  proxmox: 3
+  linux: 4
+  debian: 4
+  ubuntu: 4
+  centos: 4
+  rhel: 3
+  "red hat": 3
+  windows: 4
+  windows_server: 4
+  "windows server": 4
+  macos: 3
+  cisco: 3
+  mikrotik: 3
+  vpn: 4
+  openvpn: 3
+  ipsec: 4
+  wireguard: 3
+  dns: 4
+  dhcp: 4
+  firewall: 4
+  fortigate: 4
+  palo_alto: 3
+  "palo alto": 3
+  pfsense: 4
+  wazuh: 3
+  siem: 3
+  soc: 3
+  edr: 3
+  antivirus: 4
+  incident_response: 3
+  "incident response": 3
+  zabbix: 3
+  grafana: 3
+  prometheus: 3
+  monitoring: 4
+  monitoramento: 4
+  observability: 3
+  glpi: 3
+  itsm: 4
+  "it support": 5
+  suporte: 5
+  "suporte técnico": 5
+  helpdesk: 5
+  "service desk": 5
+  n1: 5
+  n2: 4
+  n3: 3
+  datacenter: 4
+  servers: 4
+  servidores: 4
+  hardware: 4
+  python: 3
+  sql: 3
+  bash: 4
+  shell: 4
+  "shell scripting": 4
+  powershell: 4
+  scripting: 4
+  automation: 4
+  automação: 4
+  samba: 3
+  apache: 3
+  active_directory: 4
+  "active directory": 4
+  ad: 4
+  gpo: 4
+  "group policy": 4
+  iam: 4
+  rbac: 4
+  identity_access_management: 4
+  "identity and access management": 4
+  backup: 4
+  disaster_recovery: 4
+  veeam: 4
+  storage: 4
+  virtualization: 4
+  virtualização: 4
+  hyper_v: 4
+  "hyper-v": 4
+  hyperv: 4
+  vmware: 4
+  esxi: 4
+  vcenter: 4
+  ubiquiti: 3
+  defender: 3
+  microsoft_defender: 3
+  "microsoft defender": 3
+  rustdesk: 3
+  security_onion: 3
+  "security onion": 3
+  pentesting: 2
+  iso_27001: 3
+  "iso 27001": 3
+  docker: 3
+  containers: 3
+  kubernetes: 2
+  k8s: 2
+  terraform: 2
+  iac: 2
+  "infrastructure as code": 2
+  ansible: 2
+  aws: 3
+  gcp: 2
+  "google cloud": 2
+  git: 4
+  github: 4
+  gitlab: 3
+  ci_cd: 3
+  "ci/cd": 3
+  pipeline: 3
+  "github actions": 3
+  llm: 3
+  ai: 3
+  devops: 3
+  # Valor padrão realista para tecnologias não listadas
+  default: 3
+
+# Resumo profissional para respostas dissertativas / textareas
+professional_summary: >
+  Certified Microsoft Azure Administrator (AZ-104) and Cloud & Infrastructure Engineer with 4+ years of hands-on experience
+  designing, securing, and operating enterprise infrastructure, cloud environments (Microsoft Azure), and networking architectures.
+  Demonstrated expertise in deploying enterprise firewalls (Fortigate with FSSO), SIEM and proactive monitoring (Wazuh, Zabbix),
+  Identity & Access Management (Active Directory/IAM), isolated ransomware-resilient backups, and task automation using Python, Bash,
+  and PowerShell. Proven track record in critical N1-N3 incident resolution and collaborating within international remote teams
+  under ISO 27001 standards.

@@ -1,0 +1,172 @@
+search:
+  preset: spain
+  keywords:
+  - Ingeniero Cloud
+  - Administrador de Sistemas
+  - Ingeniero DevOps
+  - Ingeniero de Ciberseguridad
+  - Azure Administrator
+  - Cloud Engineer
+  - Infrastructure Engineer
+  - Cloud Security Engineer
+  - Linux Systems Engineer
+  - Administrador de Redes
+  - Técnico de Sistemas
+  locations:
+  - Spain
+  workplace_types:
+  - remote
+  - hybrid
+  - on_site
+  remote_only: false
+  easy_apply_only: true
+  date_posted: past_week
+  presets:
+    spain:
+      name: Espanha (Remoto & Internacional)
+      locations:
+      - Spain
+      workplace_types:
+      - remote
+      - hybrid
+      - on_site
+      keywords:
+      - Ingeniero Cloud
+      - Administrador de Sistemas
+      - Ingeniero DevOps
+      - Ingeniero de Ciberseguridad
+      - Azure Administrator
+      - Cloud Engineer
+      - Infrastructure Engineer
+      - Cloud Security Engineer
+      - Linux Systems Engineer
+      - Administrador de Redes
+      - Técnico de Sistemas
+    international:
+      name: Internacional (EUA + Espanha)
+      locations:
+      - United States
+      - Spain
+      workplace_types:
+      - remote
+      - hybrid
+      - on_site
+      keywords:
+      - Azure Cloud Engineer
+      - Cloud Engineer
+      - Infrastructure Engineer
+      - Cloud Security Engineer
+      - Linux Systems Engineer
+      - Azure Administrator
+      - DevOps Engineer
+      - Ingeniero Cloud
+      - Ingeniero DevOps
+      - Administrador de Sistemas
+      - Ingeniero de Ciberseguridad
+    brazil:
+      name: Brasil (Home Office & Híbrido)
+      locations:
+      - Brazil
+      - São Paulo, Brazil
+      - Campinas, São Paulo, Brazil
+      workplace_types:
+      - remote
+      - hybrid
+      keywords:
+      - Engenheiro de Cloud
+      - Analista de Infraestrutura
+      - Engenheiro DevOps
+      - Especialista Azure
+      - Administrador de Redes
+      - Analista de Segurança da Informação
+      - Analista de Suporte e Infraestrutura
+      - Analista de Redes
+      - Engenheiro de Redes
+  experience_levels:
+  - 2
+  - 3
+  - 4
+limits:
+  max_applications_per_day: 50
+  min_match_score: 55
+  max_pages_per_search: 5
+  min_delay_seconds: 5
+  max_delay_seconds: 15
+filters:
+  exclude_senior: true
+  early_applicant_only: false
+  max_applicants_threshold: 100
+  only_latam_friendly: false
+  visa_sponsorship_only: false
+  company_blacklist:
+  - BairesDev
+  - Turing
+  - Crossover
+  - Canonical
+  - Revature
+  - Dice
+  - CyberCoders
+  - Motion Recruitment
+  - BeaconFire
+  title_blacklist:
+  - Senior
+  - Sênior
+  - Sr
+  - Sr.
+  - Lead
+  - Tech Lead
+  - Team Lead
+  - Staff
+  - Director
+  - VP
+  - Vice President
+  - Head of
+  - Principal
+  - Software Engineer
+  - Software Developer
+  - Desenvolvedor
+  - Programador
+  - Desarrollador
+  - Full Stack
+  - Fullstack
+  - Frontend
+  - Front-end
+  - Backend
+  - Back-end
+  - Web Developer
+  - Mobile Developer
+  - Java Developer
+  - Python Developer
+  - .NET Developer
+  - C# Developer
+  - PHP Developer
+  - React
+  - Node
+  - Angular
+  - Data Engineer
+  - Data Scientist
+  - Machine Learning
+  - QA Engineer
+bot:
+  dry_run: false
+  generate_cover_letter: true
+  recruiter_outreach: true
+  auto_connect_recruiters: false
+  headless: false
+  session_dir: .session
+  resume_path: config/cv/resume.pdf
+  resume_path_en: config/cv/resume_en.pdf
+  resume_path_pt: config/cv/resume_pt.pdf
+telegram:
+  enabled: false
+  bot_token: ''
+  chat_id: ''
+scheduler:
+  enabled: false
+  times:
+  - 09:30
+  - '15:00'
+ai:
+  provider: rules_only
+  model: gemini-1.5-flash
+  ollama_url: http://localhost:11434

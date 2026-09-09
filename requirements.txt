@@ -1,0 +1,13 @@
+playwright>=1.40.0
+playwright-stealth>=1.0.6
+pyyaml>=6.0.1
+rich>=13.7.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+google-genai>=0.1.0
+openai>=1.12.0
+streamlit>=1.30.0
+plotly>=5.18.0
+pandas>=2.1.4
+watchdog>=3.0.0
+pypdf>=4.0.0
