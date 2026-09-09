@@ -273,83 +273,127 @@ class RecruiterFinder:
             if "1st" in page_text or "1º" in page_text:
                 return True, "Você já está conectado com este recrutador."
 
-            # 1. Tentar encontrar botão Conectar no card principal
+            # 1. Tentar encontrar botão Conectar no top-card principal
             connect_btn = None
-            connect_selectors = [
+            top_card = self.page.locator(".pv-top-card-v2-ctas, .pvs-profile-actions, main section").first
+
+            direct_connect_selectors = [
                 "button:has-text('Connect')",
                 "button:has-text('Conectar')",
                 "button[aria-label*='Connect' i]",
-                "button[aria-label*='Conectar' i]",
-                ".pvs-profile-actions button:has-text('Connect')",
-                ".pvs-profile-actions button:has-text('Conectar')"
+                "button[aria-label*='Conectar' i]"
             ]
-            for sel in connect_selectors:
-                loc = self.page.locator(sel).first
+            for sel in direct_connect_selectors:
+                loc = top_card.locator(sel).first if top_card.count() > 0 else self.page.locator(sel).first
                 if loc.count() > 0 and loc.is_visible():
                     connect_btn = loc
                     break
 
-            # 2. Se não encontrou direto, pode estar dentro do menu "More" / "Mais"
+            # 2. Se não encontrou direto (ex: perfil com 'Seguir' ou 'Mensagem'), abrir o menu 'Mais' / 'More'
             if not connect_btn:
                 more_selectors = [
-                    ".pvs-profile-actions button:has-text('More')",
-                    ".pvs-profile-actions button:has-text('Mais')",
-                    "button[aria-label*='More actions' i]",
-                    "button[aria-label*='Mais ações' i]"
+                    "button:has-text('Mais')",
+                    "button:has-text('More')",
+                    "button[aria-label*='Mais ações' i]",
+                    "button[aria-label*='More actions' i]"
                 ]
+                more_btn = None
                 for m_sel in more_selectors:
-                    m_loc = self.page.locator(m_sel).first
-                    if m_loc.count() > 0 and m_loc.is_visible():
-                        m_loc.click()
-                        time.sleep(1.0)
-                        dropdown_connect = self.page.locator(
-                            "div[role='menu'] div:has-text('Connect'), div[role='menu'] div:has-text('Conectar'), div[role='menu'] button:has-text('Connect'), div[role='menu'] button:has-text('Conectar')"
-                        ).first
-                        if dropdown_connect.count() > 0 and dropdown_connect.is_visible():
-                            connect_btn = dropdown_connect
-                            break
+                    loc = top_card.locator(m_sel).first if top_card.count() > 0 else self.page.locator(m_sel).first
+                    if loc.count() > 0 and loc.is_visible():
+                        more_btn = loc
+                        break
+
+                if more_btn:
+                    more_btn.click(force=True)
+                    time.sleep(1.2)
+
+                    dropdown_connect = self.page.locator(
+                        "div[role='menu'] span:has-text('Conectar'), div[role='menu'] span:has-text('Connect'), "
+                        "div[role='menu'] div:has-text('Conectar'), div[role='menu'] div:has-text('Connect'), "
+                        "div[role='menu'] button:has-text('Conectar'), div[role='menu'] button:has-text('Connect')"
+                    ).first
+                    if dropdown_connect.count() > 0 and dropdown_connect.is_visible():
+                        connect_btn = dropdown_connect
 
             if not connect_btn:
                 return False, "Botão 'Conectar' não disponível no perfil (pode ser restrito a InMail ou Seguir)."
 
-            connect_btn.click()
-            time.sleep(1.5)
+            # Clicar no botão Conectar com force=True para contornar a barra fixa do LinkedIn
+            connect_btn.click(force=True)
+            time.sleep(2.0)
 
-            # 3. Verificar modal de convite ("Add a note" / "Adicionar nota")
-            # Contas gratuitas do LinkedIn possuem uma cota mensal de notas personalizadas (até 300 caracteres).
-            # Se a cota estiver disponível, preenchemos a nota. Se não, enviamos o convite de conexão padrão gratuitamente.
-            add_note_btn = self.page.locator(
-                "button:has-text('Add a note'), button:has-text('Adicionar nota'), button[aria-label*='Add a note' i], button[aria-label*='Adicionar nota' i]"
+            # 3. Localizar o modal VISÍVEL de convite
+            dialog = self.page.locator("div[role='dialog']:visible, .artdeco-modal:visible").first
+            try:
+                dialog.wait_for(state="visible", timeout=4000)
+            except Exception:
+                pass
+
+            if dialog.count() == 0 or not dialog.is_visible():
+                return False, "Modal de convite não foi exibido."
+
+            # Verificar se há pergunta intermediária 'Como você conhece esta pessoa?'
+            other_option = dialog.locator(
+                "button:has-text('Outro'), button:has-text('Other'), button:has-text('Otro'), "
+                "span:has-text('Outro'), span:has-text('Other'), label:has-text('Outro')"
             ).first
+            if other_option.count() > 0 and other_option.is_visible():
+                try:
+                    other_option.click(force=True)
+                    time.sleep(0.8)
+                    connect_advance = dialog.locator(
+                        "button.artdeco-button--primary, button:has-text('Conectar'), button:has-text('Connect')"
+                    ).first
+                    if connect_advance.count() > 0 and connect_advance.is_visible():
+                        connect_advance.click(force=True)
+                        time.sleep(1.5)
+                        dialog = self.page.locator("div[role='dialog']:visible, .artdeco-modal:visible").first
+                except Exception:
+                    pass
+
+            # 4. Tentar adicionar nota personalizada ("Adicionar nota" / "Add a note" / "Añadir nota")
+            add_note_btn = dialog.locator(
+                "button:has-text('Adicionar nota'), button:has-text('Add a note'), button:has-text('Añadir una nota'), button:has-text('Añadir nota'), "
+                "button[aria-label*='Adicionar nota' i], button[aria-label*='Add a note' i], button[aria-label*='Añadir' i]"
+            ).first
+
             note_filled = False
             if add_note_btn.count() > 0 and add_note_btn.is_visible():
                 try:
-                    add_note_btn.click()
+                    add_note_btn.click(force=True)
                     time.sleep(1.0)
 
-                    # Campo textarea para a mensagem personalizada
-                    textarea = self.page.locator("textarea[name='message'], #custom-message, textarea").first
+                    textarea = dialog.locator("textarea#custom-message, textarea[name='message'], textarea").first
                     if textarea.count() > 0 and textarea.is_visible():
                         clean_note = note[:300]
+                        textarea.click(force=True)
                         textarea.fill(clean_note)
+                        # Disparar evento de input para habilitar o botão Enviar
+                        textarea.dispatch_event("input")
                         time.sleep(1.0)
                         note_filled = True
                         logger.info(f"Nota personalizada preenchida com sucesso ({len(clean_note)} caracteres).")
                 except Exception as note_e:
-                    logger.debug(f"Não foi possível anexar nota (fallback para convite sem nota): {note_e}")
+                    logger.debug(f"Não foi possível anexar nota: {note_e}")
 
-            # 4. Enviar convite (suporta botão 'Send with note', 'Send without a note', 'Send now', 'Enviar')
-            send_btn = self.page.locator(
-                "button:has-text('Send'), button:has-text('Enviar'), button:has-text('Send without a note'), button:has-text('Enviar sem nota'), button:has-text('Send now'), button[aria-label*='Send' i], button[aria-label*='Enviar' i]"
-            ).last
+            # 5. Localizar e clicar no botão Enviar ESCOPADAMENTE NO MODAL ATIVO
+            # No modal ativo, o botão primário submete o convite (com nota ou sem nota)
+            send_btn = dialog.locator(
+                "button.artdeco-button--primary:visible, button:has-text('Enviar'):visible, "
+                "button:has-text('Enviar sem nota'):visible, button:has-text('Send'):visible, "
+                "button:has-text('Send now'):visible, button:has-text('Enviar ahora'):visible, "
+                "button[aria-label*='Enviar' i]:visible, button[aria-label*='Send' i]:visible"
+            ).first
+
             if send_btn.count() > 0 and send_btn.is_visible():
-                send_btn.click()
-                time.sleep(2.0)
-                msg_status = "com nota personalizada" if note_filled else "padrão (gratuito, sem InMail)"
+                send_btn.click(force=True)
+                time.sleep(2.5)
+                msg_status = "com nota personalizada" if note_filled else "padrão (sem nota)"
                 logger.info(f"Convite de conexão ({msg_status}) enviado com sucesso para {recruiter_profile_url}!")
                 return True, f"Convite de conexão ({msg_status}) enviado com sucesso!"
 
-            return False, "Botão 'Enviar' do convite não encontrado."
+            return False, "Botão 'Enviar' do convite não encontrado no modal."
 
         except Exception as e:
             logger.warning(f"Erro ao enviar convite para recrutador: {e}")
